@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Matching Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            color: pink;
+            margin: 0;
+            padding: 20px;
+        }
+
+        #gameScreen {
+            margin: 20px auto;
+            max-width: 600px;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px auto;
+            max-width: 400px;
+        }
+
+        .card {
+            width: 80px;
+            height: 100px;
+            background: gray;
+            color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: scale(1.1);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #giftSection img {
+            width: 200px;
+            margin-top: 20px;
+        }
+
+        #giftSection h1 {
+            color: #ffd700;
+        }
+
+        #welcomeMessage {
+            border: 2px solid wheat;
+            padding: 10px 15px;
+            position: absolute;
+            right: 10px;
+            border-radius: 10px;
+            font-size: 1rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        #welcomeMessage:hover {
+            box-shadow: 0 12px 20px rgba(158, 127, 127, 0.3);
+            background-color: #dfe4ed;
+            color: #1a1a1a;
+        }
+
+        @media screen and (max-width: 768px) {
+            body {
+                font-size: 14px;
+                padding: 10px;
+                background-position: center;
+                background-size: cover;
+            }
+
+            .game-board {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+
+            .card {
+                width: 70px;
+                height: 90px;
+                font-size: 16px;
+            }
+
+            #giftSection img {
+                width: 180px;
+            }
+
+            #giftSection h1 {
+                font-size: 20px;
+            }
+
+            #welcomeMessage {
+                right: 15px;
+                top: 15px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            body {
+                font-size: 12px;
+                padding: 5px;
+                background-size: cover;
+                text-align: center;
+            }
+
+            .game-board {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 5px;
+            }
+
+            .card {
+                width: 50px;
+                height: 70px;
+                font-size: 14px;
+            }
+
+            #giftSection img {
+                width: 120px;
+            }
+
+            #giftSection h1 {
+                font-size: 16px;
+            }
+
+            #welcomeMessage {
+                right: 10px;
+                top: 10px;
+                font-size: 0.8rem;
+                padding: 8px 12px;
+            }
+        }
+
+        @media screen and (min-width: 1024px) {
+            body {
+                font-size: 16px;
+                padding: 20px;
+                background-size: cover;
+                background-position: center;
+            }
+
+            .game-board {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+            }
+
+            .card {
+                width: 80px;
+                height: 100px;
+                font-size: 20px;
+            }
+
+            #giftSection img {
+                width: 200px;
+            }
+
+            #giftSection h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1 id="welcomeMessage">Welcome!</h1><br>
+
+    <div id="gameScreen">
+        <h1>Memory Matching Game</h1>
+        <p>Score: <span id="score">0</span></p>
+        <p id="timer">Time Left: 0s</p>
+        <div class="game-board" id="gameBoard"></div>
+    </div>
+
+    <div id="giftSection" class="hidden">
+        <h1>Congratulations!</h1>
+        <p>You have earned a gift card worth <span id="giftValue"></span> for this level!</p>
+        <img id="giftImage"
+            src="https://static.vecteezy.com/system/resources/thumbnails/002/082/105/small/hud-ui-gui-futuristic-user-interface-screen-elements-high-tech-screen-for-video-game-sci-fi-concept-design-vector.jpg"
+            alt="Gift Card">
+    </div>
+
+    <audio id="backgroundMusic"
+        src="./memory/audios/Full Video_ Daavudi - దావూదీ _ Devara _ NTR _ Janhvi Kapoor _ Koratala Siva _ Anirudh Ravichander.mp3"
+        loop></audio>
+    <audio id="welcomeAudio" src="./memory/audio/welcome-to-our-vlog-spoken-204518.mp3"></audio>
+    <audio id="matchAudio" src="./memory/audio/matched.mp3"></audio>
+    <audio id="noMatchAudio" src="./memory/audio/not matched fun.mp3"></audio>
+    <audio id="giftAudio" src="./memory/audio/giftcard.mp3"></audio>
+
+    <script>
+
+        function displayUsername() {
+            const username = localStorage.getItem('username');
+            const welcomeMessage = document.getElementById('welcomeMessage');
+
+            if (username) {
+                welcomeMessage.textContent = `Welcome, ${username}!`;
+            } else {
+                alert('Please log in first!');
+                window.location.href = 'login.html';
+            }
+        }
+
+        displayUsername();
+
+        const gameScreen = document.getElementById("gameScreen");
+        const gameBoard = document.getElementById("gameBoard");
+        const scoreDisplay = document.getElementById("score");
+        const timerDisplay = document.getElementById("timer");
+        const welcomeAudio = document.getElementById("welcomeAudio");
+        const matchAudio = document.getElementById("matchAudio");
+        const noMatchAudio = document.getElementById("noMatchAudio");
+        const giftAudio = document.getElementById("giftAudio");
+        const backgroundMusic = document.getElementById("backgroundMusic");
+        const giftSection = document.getElementById("giftSection");
+        const giftValue = document.getElementById("giftValue");
+
+        let score = 0;
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let level = 1;
+        let timerInterval;
+        let timeLeft;
+
+        const levels = [
+            ["A", "B", "A", "B", "C", "C"], // Level 1
+            ["A", "B", "C", "D", "E", "E", "A", "B", "C", "D"], // Level 2
+            ["🌻", "🌞", "🌞", "🙉", "🙉", "😹", "😹", "🎻", "🎻", "🌻"], // Level 3
+            // ["①", "①", "②", "②", "③", "③", "④", "④", "⑤", "⑤", "⑥", "⑥", "⑦", "⑦", "⑩", "⑩"], // Level 4
+        ];
+
+        const rewards = [100, 150, 200, 300]; // Rewards for each level
+
+        const backgrounds = [
+            "url('https://images.freecreatives.com/wp-content/uploads/2015/04/Video-Game-Desktop-Backgrounds-2.jpg')",
+            "url('https://th.bing.com/th/id/OIP.dYivJonv7UihlsDtXKduYQHaEK?rs=1&pid=ImgDetMain')",
+            "url('https://i.ytimg.com/vi/iouEljb-a3k/maxresdefault.jpg')",
+            "url('https://e1.pxfuel.com/desktop-wallpaper/437/1001/desktop-wallpaper-5-themes-retro-synthwave-theme-ps4.jpg')",
+        ];
+
+        function startTimer(duration, onTimeUp) {
+            clearInterval(timerInterval);
+            timeLeft = duration;
+            timerDisplay.textContent = `Time Left: ${timeLeft}s`;
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = `Time Left: ${timeLeft}s`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    alert("Time's up! Game Over.");
+                    onTimeUp();
+                }
+            }, 1000);
+        }
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function createBoard(cards) {
+            gameBoard.innerHTML = "";
+            const shuffledValues = shuffle([...cards]);
+
+            shuffledValues.forEach((value) => {
+                const card = document.createElement("div");
+                card.classList.add("card");
+                card.dataset.value = value;
+                card.addEventListener("click", flipCard);
+                gameBoard.appendChild(card);
+            });
+        }
+
+        function flipCard() {
+            if (flippedCards.length < 2 && !this.classList.contains("flipped")) {
+                this.classList.add("flipped");
+                this.textContent = this.dataset.value;
+                flippedCards.push(this);
+
+                if (flippedCards.length === 2) {
+                    checkForMatch();
+                }
+            }
+        }
+
+        function checkForMatch() {
+            const [card1, card2] = flippedCards;
+
+            if (card1.dataset.value === card2.dataset.value) {
+                card1.classList.add("matched");
+                card2.classList.add("matched");
+                matchAudio.play();
+                matchedPairs++;
+                score += 10;
+                scoreDisplay.textContent = score;
+                flippedCards = [];
+
+                if (matchedPairs === levels[level - 1].length / 2) {
+                    clearInterval(timerInterval);
+                    giftAudio.play();
+                    showGift();
+                }
+            } else {
+                noMatchAudio.play();
+                setTimeout(() => {
+                    card1.classList.remove("flipped");
+                    card2.classList.remove("flipped");
+                    card1.textContent = "";
+                    card2.textContent = "";
+                    flippedCards = [];
+                }, 1000);
+            }
+        }
+
+        function showGift() {
+            giftValue.textContent = `₹${rewards[level - 1]}`;
+            giftSection.classList.remove("hidden");
+
+            setTimeout(() => {
+                giftSection.classList.add("hidden");
+                level++;
+                matchedPairs = 0;
+
+                if (level <= levels.length) {
+                    startGame();
+                } else {
+                    alert("Game Completed!");
+                    // window.location.reload();
+                    window.location.href = "./giftCard.html";
+                }
+            }, 3000);
+        }
+
+        function startGame() {
+            score = 0;
+            scoreDisplay.textContent = score;
+            matchedPairs = 0;
+
+            const levelDuration = level === 1 ? 30 : 45;
+            startTimer(levelDuration, () => {
+                alert("Game Over!");
+                window.location.reload();
+            });
+
+            document.body.style.backgroundImage = backgrounds[level - 1];
+            backgroundMusic.play();
+
+            createBoard(levels[level - 1]);
+            // window.location.href="./giftcard.html";
+        }
+
+        // Start the game
+        welcomeAudio.play();
+        startGame();
+
+        // window.location.href="./giftcard.html";
+
+
+
+
+        // const gameScreen = document.getElementById("gameScreen");
+        // const gameBoard = document.getElementById("gameBoard");
+        // const scoreDisplay = document.getElementById("score");
+        // const timerDisplay = document.getElementById("timer");
+        // const welcomeAudio = document.getElementById("welcomeAudio");
+        // const matchAudio = document.getElementById("matchAudio");
+        // const noMatchAudio = document.getElementById("noMatchAudio");
+        // const giftAudio = document.getElementById("giftAudio");
+        // const backgroundMusic = document.getElementById("backgroundMusic");
+        // const giftSection = document.getElementById("giftSection");
+        // const giftValue = document.getElementById("giftValue");
+
+        // let score = 0;
+        // let flippedCards = [];
+        // let matchedPairs = 0;
+        // let level = 1;
+        // let timerInterval;
+        // let timeLeft;
+
+        // const levels = [
+        //     ["A", "B", "A", "B", "C", "C"], // Level 1
+        //     ["A", "B", "C", "D", "E", "E", "A", "B", "C", "D"], // Level 2
+        //     ["🌻", "🌞", "🌞", "🙉", "🙉", "😹", "😹", "🎻", "🎻", "🌻"], // Level 3
+        // ];
+
+        // const rewards = [100, 150, 200, 300]; // Rewards for each level
+
+        // const backgrounds = [
+        //     "url('https://images.freecreatives.com/wp-content/uploads/2015/04/Video-Game-Desktop-Backgrounds-2.jpg')",
+        //     "url('https://th.bing.com/th/id/OIP.dYivJonv7UihlsDtXKduYQHaEK?rs=1&pid=ImgDetMain')",
+        //     "url('https://i.ytimg.com/vi/iouEljb-a3k/maxresdefault.jpg')",
+        //     "url('https://e1.pxfuel.com/desktop-wallpaper/437/1001/desktop-wallpaper-5-themes-retro-synthwave-theme-ps4.jpg')",
+        // ];
+
+        // function saveGameState() {
+        //     const gameState = {
+        //         score,
+        //         level,
+        //         matchedPairs,
+        //     };
+        //     localStorage.setItem("memoryGame", JSON.stringify(gameState));
+        // }
+
+        // function loadGameState() {
+        //     const savedState = JSON.parse(localStorage.getItem("memoryGame"));
+        //     if (savedState) {
+        //         score = savedState.score || 0;
+        //         level = savedState.level || 1;
+        //         matchedPairs = savedState.matchedPairs || 0;
+        //         scoreDisplay.textContent = score;
+        //     }
+        // }
+
+        // function startTimer(duration, onTimeUp) {
+        //     clearInterval(timerInterval);
+        //     timeLeft = duration;
+        //     timerDisplay.textContent = `Time Left: ${timeLeft}s`;
+
+        //     timerInterval = setInterval(() => {
+        //         timeLeft--;
+        //         timerDisplay.textContent = `Time Left: ${timeLeft}s`;
+
+        //         if (timeLeft <= 0) {
+        //             clearInterval(timerInterval);
+        //             alert("Time's up! Game Over.");
+        //             onTimeUp();
+        //         }
+        //     }, 1000);
+        // }
+
+        // function shuffle(array) {
+        //     for (let i = array.length - 1; i > 0; i--) {
+        //         const j = Math.floor(Math.random() * (i + 1));
+        //         [array[i], array[j]] = [array[j], array[i]];
+        //     }
+        //     return array;
+        // }
+
+        // function createBoard(cards) {
+        //     gameBoard.innerHTML = "";
+        //     const shuffledValues = shuffle([...cards]);
+
+        //     shuffledValues.forEach((value) => {
+        //         const card = document.createElement("div");
+        //         card.classList.add("card");
+        //         card.dataset.value = value;
+        //         card.addEventListener("click", flipCard);
+        //         gameBoard.appendChild(card);
+        //     });
+        // }
+
+        // function flipCard() {
+        //     if (flippedCards.length < 2 && !this.classList.contains("flipped")) {
+        //         this.classList.add("flipped");
+        //         this.textContent = this.dataset.value;
+        //         flippedCards.push(this);
+
+        //         if (flippedCards.length === 2) {
+        //             checkForMatch();
+        //         }
+        //     }
+        // }
+
+        // function checkForMatch() {
+        //     const [card1, card2] = flippedCards;
+
+        //     if (card1.dataset.value === card2.dataset.value) {
+        //         card1.classList.add("matched");
+        //         card2.classList.add("matched");
+        //         matchAudio.play();
+        //         matchedPairs++;
+        //         score += 10;
+        //         saveGameState(); // Save game state
+        //         scoreDisplay.textContent = score;
+        //         flippedCards = [];
+
+        //         if (matchedPairs === levels[level - 1].length / 2) {
+        //             clearInterval(timerInterval);
+        //             giftAudio.play();
+        //             showGift();
+        //         }
+        //     } else {
+        //         noMatchAudio.play();
+        //         setTimeout(() => {
+        //             card1.classList.remove("flipped");
+        //             card2.classList.remove("flipped");
+        //             card1.textContent = "";
+        //             card2.textContent = "";
+        //             flippedCards = [];
+        //         }, 1000);
+        //     }
+        // }
+
+        // function showGift() {
+        //     giftValue.textContent = `₹${rewards[level - 1]}`;
+        //     giftSection.classList.remove("hidden");
+
+        //     setTimeout(() => {
+        //         giftSection.classList.add("hidden");
+        //         level++;
+        //         matchedPairs = 0;
+
+        //         if (level <= levels.length) {
+        //             startGame();
+        //         } else {
+        //             alert("Game Completed!");
+        //             localStorage.removeItem("memoryGame"); // Clear local storage
+        //             window.location.href = "./giftcard.html";
+        //         }
+        //     }, 3000);
+        // }
+
+        // function startGame() {
+        //     loadGameState(); // Load saved state
+        //     const levelDuration = level === 1 ? 30 : 45;
+        //     startTimer(levelDuration, () => {
+        //         alert("Game Over!");
+        //         localStorage.removeItem("memoryGame"); // Clear state on game over
+        //         window.location.reload();
+        //     });
+
+        //     document.body.style.backgroundImage = backgrounds[level - 1];
+        //     backgroundMusic.play();
+
+        //     createBoard(levels[level - 1]);
+        // }
+
+        // // Start the game
+        // welcomeAudio.play();
+        // startGame();
+    </script>
+</body>
+
+</html>

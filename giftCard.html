@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redeem Card</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            /* background-image: url("https://wallpapercave.com/wp/nBvAShp.jpg"); */
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        #backgroundVideo {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            padding: 20px;
+            width: 300px;
+            z-index: 1;
+        }
+
+        .gift-card-image {
+            width: 50%;
+            height: auto;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #congratsMessage {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: blue;
+        }
+
+        #animatedCongrats {
+            animation: pulse 2s infinite;
+            color: red;
+        }
+
+        /* Keyframe Animation for Congratulations */
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 0.7;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        #enhanced-button {
+            position: relative;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(90deg, #ff007c, #5900ff, #00d4ff);
+            background-size: 300%;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            box-shadow: 0 0 10px rgba(255, 0, 124, 0.8), 0 0 20px rgba(89, 0, 255, 0.6);
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.5s ease;
+        }
+
+        #enhanced-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.5), transparent);
+            border-radius: 50%;
+            animation: pulse 1.5s;
+            z-index: -1;
+        }
+
+        #enhanced-button:hover {
+            background-position: 100%;
+            box-shadow: 0 0 15px rgba(255, 0, 124, 0.8), 0 0 30px rgba(89, 0, 255, 0.7);
+            transform: scale(1.1);
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+
+            50% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        /* For tablets (screens up to 768px) */
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 10px;
+                background-position: center;
+                background-size: cover;
+            }
+
+            .card {
+                width: 90%;
+                padding: 15px;
+            }
+
+            .gift-card-image {
+                width: 60%;
+            }
+
+            button {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+
+            #congratsMessage {
+                font-size: 16px;
+            }
+        }
+
+        /* For mobile phones (screens up to 480px) */
+        @media screen and (max-width: 480px) {
+            body {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .card {
+                width: 100%;
+                padding: 10px;
+                background: rgba(255, 255, 255, 0.8);
+                /* Slightly more transparent */
+            }
+
+            .gift-card-image {
+                width: 70%;
+            }
+
+            button {
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+
+            #congratsMessage {
+                font-size: 14px;
+            }
+        }
+
+        /* For laptops and desktops (screens 1024px and up) */
+        @media screen and (min-width: 1024px) {
+            .card {
+                width: 350px;
+                padding: 25px;
+            }
+
+            .gift-card-image {
+                width: 50%;
+            }
+
+            button {
+                font-size: 16px;
+                padding: 12px 24px;
+            }
+
+            #congratsMessage {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <img src="https://m.media-amazon.com/images/I/71gacP4F04L._AC_UF1000,1000_QL80_.jpg" alt="Gift Card"
+            class="gift-card-image">
+        <h2>Redeem Your Reward</h2>
+        <!-- <button id="redeemButton">Redeem</button> -->
+        <button id="enhanced-button">Redeem</button>
+        <p id="congratsMessage" class="hidden"><img
+                src="https://img.freepik.com/premium-vector/open-gift-box-with-coins-money-rewards_123891-146684.jpg"
+                class="gift-card-image">🎉 Congratulations! 🎉 You completed all levels and won a gift card worth ₹400!
+        </p>
+    </div>
+    <audio id="congratsAudio" src="./memory/audio/congratulations-male-spoken-264675.mp3"></audio>
+    <script>
+        document.getElementById("enhanced-button").addEventListener("click", function () {
+            const congratsMessage = document.getElementById("congratsMessage");
+            const congratsAudio = document.getElementById("congratsAudio");
+
+            // Show the congratulations message
+            congratsMessage.classList.remove("hidden");
+
+            // Play the audio
+            congratsAudio.play();
+        });
+        document.addEventListener("keydown", (event) => {
+            const backgroundAudio = document.getElementById("backgroundAudio");
+            if (event.code === "KeyR") {
+                backgroundAudio.currentTime = 0; // Reset to the start
+                backgroundAudio.play();
+            }
+        });
+    </script>
+</body>
+
+</html>
